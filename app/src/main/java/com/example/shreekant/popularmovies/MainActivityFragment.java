@@ -1,5 +1,6 @@
 package com.example.shreekant.popularmovies;
 
+import android.content.Context;
 import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.AsyncTask;
@@ -12,6 +13,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.GridView;
+import android.widget.ImageView;
+
+import com.squareup.picasso.Picasso;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -32,7 +36,8 @@ import java.util.ArrayList;
 public class MainActivityFragment extends Fragment {
 
     private static final String API_KEY = "631e0443b035045177f280222421ecd1";
-    private ArrayAdapter<String> mAdapter;
+//    private ArrayAdapter<String> mAdapter;
+    private ImageAdapter mAdapter;
 
     public MainActivityFragment() {
     }
@@ -49,7 +54,8 @@ public class MainActivityFragment extends Fragment {
 //        ListView listView = (ListView) rootView.findViewById(R.id.listview_movies);
 //        listView.setAdapter(mAdapter);
 
-        mAdapter = new ArrayAdapter(getActivity(), R.layout.list_item_movie, R.id.list_item_movie_textview, initialList);
+//        mAdapter = new ArrayAdapter(getActivity(), R.layout.list_item_movie, R.id.list_item_movie_textview, initialList);
+        mAdapter = new ImageAdapter(getActivity(), R.layout.list_item_movie, R.id.list_item_movie_textview, initialList);
         GridView gridView = (GridView) rootView.findViewById(R.id.gridview_movies);
         gridView.setAdapter(mAdapter);
 
@@ -97,11 +103,14 @@ public class MainActivityFragment extends Fragment {
                 JSONObject movie = movies.optJSONObject(i);
                 if (movie == null)
                     break;
+                String movieInfo = movie.optString("poster_path");
+                /*
                 String movieInfo = i + ": "
                                 + movie.optString("id") + ", "
                                 + movie.optString("title") + ", "
                                 + movie.optString("poster_path");
 //                Log.v(LOG_TAG, movieInfo);
+                */
                 moviesInfo.add(movieInfo);
                 i++;
             }
@@ -222,6 +231,53 @@ public class MainActivityFragment extends Fragment {
                     mAdapter.add(str);
                 }
             }
+        }
+    }
+
+
+    private class ImageAdapter extends ArrayAdapter<String> {
+        private final String LOG_TAG = ImageAdapter.class.getSimpleName();
+
+        private final Context mContext;
+
+        public ImageAdapter(Context context, int resource, int textViewResourceId, ArrayList<String> objects) {
+            super(context, resource, textViewResourceId, objects);
+            mContext = context;
+        }
+
+        @Override
+        public View getView(int position, View convertView, ViewGroup parent) {
+            ImageView imageView;
+            if (convertView == null) { // if it's not recycled, initialize some attributes
+                imageView = new ImageView(mContext);
+                imageView.setScaleType(ImageView.ScaleType.CENTER_CROP);
+                imageView.setLayoutParams(new GridView.LayoutParams(
+                        ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+            } else {
+                imageView = (ImageView) convertView;
+            }
+
+            // Get the image URL for the current position.
+            String url = "http://image.tmdb.org/t/p/w92" + getItem(position);
+//            String url = "http://image.tmdb.org/t/p/w185" + getItem(position);
+            Log.v(LOG_TAG, position + ": " + url);
+
+            // Trigger the download of the URL asynchronously into the image view.
+            // Picasso.with(context).load("http://i.imgur.com/DvpvklR.png").into(imageView);
+            Picasso.with(getContext())
+                    .load(url)                  // takes care of downloading as well as caching
+                    .placeholder(R.raw.image_placeholder)
+                    .into(imageView);
+            /*
+            Picasso.with(mContext) //
+                    .load(url) //
+                    .placeholder(R.drawable.placeholder) //
+                    .error(R.drawable.error) //
+                    .fit() //
+                    .tag(context) //
+                    .into(view);
+            */
+            return imageView;
         }
     }
 }
