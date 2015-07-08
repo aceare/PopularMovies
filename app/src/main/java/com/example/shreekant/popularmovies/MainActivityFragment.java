@@ -54,15 +54,15 @@ public class MainActivityFragment extends Fragment {
 //        ListView listView = (ListView) rootView.findViewById(R.id.listview_movies);
 //        listView.setAdapter(mAdapter);
 
-//        mAdapter = new ArrayAdapter(getActivity(), R.layout.list_item_movie, R.id.list_item_movie_textview, initialList);
+/* Works gridview with images too! Is it because of overridden ImageAdapter.getView??
         mAdapter = new ImageAdapter(getActivity(), R.layout.list_item_movie, R.id.list_item_movie_textview, initialList);
         GridView gridView = (GridView) rootView.findViewById(R.id.gridview_movies);
         gridView.setAdapter(mAdapter);
-
-/*        mAdapter = new ArrayAdapter(getActivity(), R.layout.movie_item_image, R.id.movie_item_imageview, initialList);
+*/
+        mAdapter = new ImageAdapter(getActivity(), R.layout.movie_item_image, R.id.movie_item_imageview, initialList);
         GridView gridView = (GridView) rootView.findViewById(R.id.gridview_movies);
         gridView.setAdapter(mAdapter);
-*/
+
         return rootView;
     }
 
@@ -238,18 +238,15 @@ public class MainActivityFragment extends Fragment {
     private class ImageAdapter extends ArrayAdapter<String> {
         private final String LOG_TAG = ImageAdapter.class.getSimpleName();
 
-        private final Context mContext;
-
         public ImageAdapter(Context context, int resource, int textViewResourceId, ArrayList<String> objects) {
             super(context, resource, textViewResourceId, objects);
-            mContext = context;
         }
 
         @Override
         public View getView(int position, View convertView, ViewGroup parent) {
             ImageView imageView;
             if (convertView == null) { // if it's not recycled, initialize some attributes
-                imageView = new ImageView(mContext);
+                imageView = new ImageView(getContext());
                 imageView.setScaleType(ImageView.ScaleType.CENTER_CROP);
                 imageView.setLayoutParams(new GridView.LayoutParams(
                         ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
