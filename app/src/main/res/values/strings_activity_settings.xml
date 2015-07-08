@@ -1,0 +1,25 @@
+<resources>
+    <string name="title_activity_settings">Settings</string>
+
+    <!-- Strings related to Settings -->
+
+    <!-- General settings -->
+    <string name="pref_header_general">General</string>
+    <string name="pref_sort_by_key" translatable="false">sort_by</string>
+    <string name="pref_sort_by_title">Sort by</string>
+    <string name="pref_sort_by_popularity">Popularity</string>
+    <string name="pref_sort_by_ratings">Ratings</string>
+    <string name="pref_sort_by_popularity_value">0</string>
+    <string name="pref_sort_by_ratings_value">1</string>
+    <string name="pref_sort_by_default_value">@string/pref_sort_by_ratings_value</string>
+
+    <string-array name="pref_sort_by_list_titles">
+        <item>@string/pref_sort_by_popularity</item>
+        <item>@string/pref_sort_by_ratings</item>
+    </string-array>
+    <string-array name="pref_sort_by_list_values">
+        <item>@string/pref_sort_by_popularity_value</item>
+        <item>@string/pref_sort_by_ratings_value</item>
+    </string-array>
+
+</resources>
