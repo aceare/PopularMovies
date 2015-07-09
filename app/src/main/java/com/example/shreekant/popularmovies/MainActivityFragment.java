@@ -1,6 +1,7 @@
 package com.example.shreekant.popularmovies;
 
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.AsyncTask;
@@ -11,6 +12,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.GridView;
 import android.widget.ImageView;
@@ -46,7 +48,8 @@ public class MainActivityFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_main, container, false);
-        ArrayList<String> initialList = new ArrayList<String>();
+        ArrayList<MovieData> initialList = new ArrayList<MovieData>();
+//        ArrayList<String> initialList = new ArrayList<String>();
 //        String[] initialArray = { "line0", "line1", "line2", "line3", "line4", "line5", "line6", "line7", "line8", "line9"};
 //        ArrayList<String> initialList = new ArrayList<String>(Arrays.asList(initialArray));
 
@@ -54,7 +57,9 @@ public class MainActivityFragment extends Fragment {
 //        ListView listView = (ListView) rootView.findViewById(R.id.listview_movies);
 //        listView.setAdapter(mAdapter);
 
-/* Works gridview with images too! Is it because of overridden ImageAdapter.getView??
+/*
+    // ??? This layout/view doesn't seem to make much difference as even TextView also shows gridview images!!
+    // May be that's because of below overridden getView()???
         mAdapter = new ImageAdapter(getActivity(), R.layout.list_item_movie, R.id.list_item_movie_textview, initialList);
         GridView gridView = (GridView) rootView.findViewById(R.id.gridview_movies);
         gridView.setAdapter(mAdapter);
@@ -62,6 +67,19 @@ public class MainActivityFragment extends Fragment {
         mAdapter = new ImageAdapter(getActivity(), R.layout.movie_item_image, R.id.movie_item_imageview, initialList);
         GridView gridView = (GridView) rootView.findViewById(R.id.gridview_movies);
         gridView.setAdapter(mAdapter);
+
+        gridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                JSONObject jsonObject = new JSONObject();
+                MovieData movieData = mAdapter.getItem(position);
+                //Toast toast = Toast.makeText(getActivity(), forecast, Toast.LENGTH_SHORT);
+                //toast.show();
+                Intent detailActivityIntent = new Intent(getActivity(), DetailActivity.class);
+                detailActivityIntent.putExtra(String.valueOf(R.string.movie_data_key), movieData);
+                startActivity(detailActivityIntent);
+            }
+        });
 
         return rootView;
     }
@@ -71,6 +89,8 @@ public class MainActivityFragment extends Fragment {
         super.onStart();
         fetchMovieList();
     }
+
+
 
     private void fetchMovieList() {
 /*
@@ -87,13 +107,13 @@ public class MainActivityFragment extends Fragment {
 
     }
 
-    private class FetchMovieListTask extends AsyncTask<String, Void, String[]> {
+    private class FetchMovieListTask extends AsyncTask<String, Void, ArrayList<MovieData>> {
         private final String LOG_TAG = FetchMovieListTask.class.getSimpleName();
 
-        private String[] getMovieList(String json)
+        private ArrayList<MovieData> getMovieList(String json)
             throws JSONException {
 
-            ArrayList<String> moviesInfo = new ArrayList<String>();
+            ArrayList<MovieData> movieList = new ArrayList<MovieData>();
 
             JSONObject jsonObject;
             jsonObject = new JSONObject(json);
@@ -103,7 +123,7 @@ public class MainActivityFragment extends Fragment {
                 JSONObject movie = movies.optJSONObject(i);
                 if (movie == null)
                     break;
-                String movieInfo = movie.optString("poster_path");
+                // String movieInfo = movie.optString("poster_path");
                 /*
                 String movieInfo = i + ": "
                                 + movie.optString("id") + ", "
@@ -111,18 +131,29 @@ public class MainActivityFragment extends Fragment {
                                 + movie.optString("poster_path");
 //                Log.v(LOG_TAG, movieInfo);
                 */
-                moviesInfo.add(movieInfo);
+                MovieData movieData = new MovieData(
+                        movie.optString("id"),
+                        movie.optString("original_title"),
+                        movie.optString("poster_path"),
+                        movie.optString("release_date"),
+                        movie.optString("vote_average"),
+                        movie.optString("overview"));
+
+                movieList.add(movieData);
                 i++;
             }
 
+            /*
             String[] moviesInfoArray = {};
             moviesInfoArray = moviesInfo.toArray(moviesInfoArray);
 //            Log.v(LOG_TAG, moviesInfoArray);
             return moviesInfoArray;
+            */
+            return movieList;
         }
 
         @Override
-        protected String[] doInBackground(String... params) {
+        protected ArrayList<MovieData> doInBackground(String... params) {
 
             SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(getActivity());
             String prefSortBy = sharedPref.getString(getString(R.string.pref_sort_by_key),
@@ -223,22 +254,22 @@ public class MainActivityFragment extends Fragment {
         }
 
         @Override
-        protected void onPostExecute(String[] strings) {
-            super.onPostExecute(strings);
-            if (strings != null) {
+        protected void onPostExecute(ArrayList<MovieData> movieList) {
+            super.onPostExecute(movieList);
+            if (movieList != null) {
                 mAdapter.clear();
-                for (String str : strings) {
-                    mAdapter.add(str);
+                for (MovieData movieData : movieList) {
+                    mAdapter.add(movieData);
                 }
             }
         }
     }
 
 
-    private class ImageAdapter extends ArrayAdapter<String> {
+    private class ImageAdapter extends ArrayAdapter<MovieData> {
         private final String LOG_TAG = ImageAdapter.class.getSimpleName();
 
-        public ImageAdapter(Context context, int resource, int textViewResourceId, ArrayList<String> objects) {
+        public ImageAdapter(Context context, int resource, int textViewResourceId, ArrayList<MovieData> objects) {
             super(context, resource, textViewResourceId, objects);
         }
 
@@ -255,14 +286,17 @@ public class MainActivityFragment extends Fragment {
             }
 
             // Get the image URL for the current position.
-            String url = "http://image.tmdb.org/t/p/w92" + getItem(position);
-//            String url = "http://image.tmdb.org/t/p/w185" + getItem(position);
+            // String url = "http://image.tmdb.org/t/p/w92" + getItem(position);
+            MovieData movieData = getItem(position);
+            String url = movieData.getPosterPath();
+            // "http://image.tmdb.org/t/p/w92" + movieData.getPosterName();
+            // "http://image.tmdb.org/t/p/w185" + getItem(position);
             Log.v(LOG_TAG, position + ": " + url);
 
             // Trigger the download of the URL asynchronously into the image view.
-            // Picasso.with(context).load("http://i.imgur.com/DvpvklR.png").into(imageView);
+            // Takes care of downloading & showing it in sync with UI thread, as well as caching images:
             Picasso.with(getContext())
-                    .load(url)                  // takes care of downloading as well as caching
+                    .load(url)
                     .placeholder(R.raw.image_placeholder)
                     .into(imageView);
             /*
