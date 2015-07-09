@@ -4,4 +4,5 @@
     <string name="title_activity_detail">Movie Details</string>
 
     <string name="movie_data_key" translatable="false">MovieData</string>
+    <string name="movie_video_play_text">Play</string>
 </resources>

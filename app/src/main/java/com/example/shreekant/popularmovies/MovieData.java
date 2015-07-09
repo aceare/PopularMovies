@@ -7,6 +7,12 @@ import android.os.Parcelable;
  * Created by shreekant on 7/9/2015.
  */
 public class MovieData implements Parcelable {
+
+    private static final String API_KEY = "631e0443b035045177f280222421ecd1";
+    static public String getApiKey() {
+        return API_KEY;
+    }
+
     public String getId() {
         return mId;
     }
@@ -32,6 +38,36 @@ public class MovieData implements Parcelable {
         return mOverview;
     }
 
+/*
+TODO-
+ArrayList<String[]> is not "directly" parcelable thru writeTypedArray() / writeParcelableArray().
+So, abort optimization/caching scheme, and fetch reviews & video paths on access of every details view.
+
+    public ArrayList<String[]> getReviews() {
+        return mReviews;
+    }
+
+    public ArrayList<String[]> getVideoPaths() {
+        return mVideoPaths;
+    }
+
+    public MovieData setReviews(ArrayList<String[]> reviews)
+    {
+        mReviews        = reviews;
+        return this;
+    }
+
+    public MovieData setVideoPaths(ArrayList<String[]> videoPaths)
+    {
+        mVideoPaths     = videoPaths;
+        return this;
+    }
+
+    private ArrayList<String[]> mReviews;       // 0: author,       1: content      - TODO-FIX BAD!
+    private ArrayList<String[]> mVideoPaths;    // 0: name/size,    1: youtube url  - TODO-FIX BAD!
+
+*/
+
     private String mId;
     private String mOriginalTitle;
     private String mPosterName;
@@ -39,13 +75,21 @@ public class MovieData implements Parcelable {
     private String mVoteAverage;
     private String mOverview;
 
-    MovieData(String id, String originalTitle, String posterName, String releaseDate, String voteAverage, String overview){
+    MovieData(String id,
+              String originalTitle,
+              String posterName,
+              String releaseDate,
+              String voteAverage,
+              String overview)
+    {
         mId             = id;
         mOriginalTitle  = originalTitle;
         mPosterName     = posterName;
         mReleaseDate    = releaseDate;
         mVoteAverage    = voteAverage;
         mOverview       = overview;
+//        mReviews        = null;
+//        mVideoPaths     = null;
     }
 
 
@@ -56,6 +100,7 @@ public class MovieData implements Parcelable {
         out.writeString(mReleaseDate);
         out.writeString(mVoteAverage);
         out.writeString(mOverview);
+        // mReviews, mVideoPaths
     }
 
     private MovieData(Parcel in) {
@@ -65,6 +110,7 @@ public class MovieData implements Parcelable {
         mReleaseDate    = in.readString();
         mVoteAverage    = in.readString();
         mOverview       = in.readString();
+        // mReviews, mVideoPaths
     }
 
     public static final Parcelable.Creator<MovieData> CREATOR

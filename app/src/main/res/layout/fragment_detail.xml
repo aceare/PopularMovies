@@ -19,41 +19,68 @@
         android:gravity="center"
         android:layout_marginBottom="@dimen/activity_horizontal_margin" />
 
-    <ImageView
-        android:id="@+id/movie_poster"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/movie_original_title"
-        android:layout_alignParentLeft="true"
-        android:layout_marginRight="@dimen/activity_vertical_margin" />
-
-    <TextView
-        android:id="@+id/movie_release_date"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/movie_original_title"
-        android:layout_toRightOf="@+id/movie_poster" />
-
-    <TextView
-        android:id="@+id/movie_vote_average"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/movie_release_date"
-        android:layout_toRightOf="@+id/movie_poster" />
-
-    <TextView
-        android:id="@+id/movie_overview"
+    <ScrollView
+        android:id="@+id/movie_video_list_scrollview"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/movie_poster"
-        android:layout_marginTop="@dimen/activity_vertical_margin"
-         />
+        android:layout_height="match_parent"
+        android:layout_below="@+id/movie_original_title"
+        android:orientation="vertical"
+        android:overScrollMode="ifContentScrolls"
+        android:scrollbarStyle="insideOverlay"
+        android:scrollbars="vertical" >
 
-    <View
-        android:layout_width="match_parent"
-        android:layout_height="2dp"
-        android:layout_below="@+id/movie_overview"
-        android:background="@color/background_material_dark" />
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
 
+            <ImageView
+                android:id="@+id/movie_poster"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentLeft="true"
+                android:layout_marginRight="@dimen/activity_vertical_margin" />
 
+            <TextView
+                android:id="@+id/movie_release_date"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_toRightOf="@+id/movie_poster" />
+
+            <TextView
+                android:id="@+id/movie_vote_average"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/movie_release_date"
+                android:layout_toRightOf="@+id/movie_poster" />
+
+            <TextView
+                android:id="@+id/movie_overview"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/movie_poster"
+                android:layout_marginTop="@dimen/activity_vertical_margin"
+                 />
+
+            <View
+                android:id="@+id/movie_overview_end_line"
+                android:layout_width="match_parent"
+                android:layout_height="2dp"
+                android:layout_below="@+id/movie_overview"
+                android:background="@color/background_material_dark" />
+
+            <LinearLayout
+                android:id="@+id/movie_video_list"
+                android:orientation="vertical"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/movie_overview_end_line" />
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="2dp"
+                android:layout_below="@+id/movie_video_list"
+                android:background="@color/background_material_dark" />
+
+        </RelativeLayout>
+    </ScrollView>
 </RelativeLayout>
