@@ -68,6 +68,7 @@
                 android:layout_below="@+id/movie_overview"
                 android:background="@color/background_material_dark" />
 
+
             <LinearLayout
                 android:id="@+id/movie_video_list"
                 android:orientation="vertical"
@@ -76,10 +77,35 @@
                 android:layout_below="@+id/movie_overview_end_line" />
 
             <View
+                android:id="@+id/movie_videos_end_line"
                 android:layout_width="match_parent"
                 android:layout_height="2dp"
                 android:layout_below="@+id/movie_video_list"
                 android:background="@color/background_material_dark" />
+
+
+            <TextView
+                android:id="@+id/movie_reviews_heading"
+                android:text="@string/movie_reviews_heading_text"
+                android:textSize="@dimen/abc_text_size_subhead_material"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/movie_videos_end_line" />
+
+            <LinearLayout
+                android:id="@+id/movie_review_list"
+                android:orientation="vertical"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/movie_reviews_heading" />
+
+            <View
+                android:id="@+id/movie_reviews_end_line"
+                android:layout_width="match_parent"
+                android:layout_height="2dp"
+                android:layout_below="@+id/movie_review_list"
+                android:background="@color/background_material_dark" />
+
 
         </RelativeLayout>
     </ScrollView>

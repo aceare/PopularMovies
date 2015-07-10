@@ -5,4 +5,8 @@
 
     <string name="movie_data_key" translatable="false">MovieData</string>
     <string name="movie_video_play_text">Play</string>
+    <string name="msg_no_media_app_found">Media app not found.</string>
+    <string name="movie_reviews_heading_text">Reviews</string>
+    <string name="movie_review_read_text">Read</string>
+    <string name="msg_no_internet_connection">Couldn\\\'t connect to internet! Please check and retry.</string>
 </resources>

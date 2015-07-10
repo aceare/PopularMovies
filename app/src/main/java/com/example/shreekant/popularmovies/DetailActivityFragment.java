@@ -8,9 +8,11 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.squareup.picasso.Picasso;
 
@@ -45,7 +47,7 @@ public class DetailActivityFragment extends Fragment {
                     break;
                 String[] reviewStr = new String[2];
                 reviewStr[0] = review.optString("author");
-                reviewStr[1] = review.optString("content");
+                reviewStr[1] = review.optString("url");
                 reviewList.add(reviewStr);
                 i++;
             }
@@ -75,8 +77,8 @@ public class DetailActivityFragment extends Fragment {
                 if (video == null)
                     break;
                 String[] videoStr = new String[2];
-                videoStr[0] = video.optString("name") + "-" + video.optString("size");
-                videoStr[1] = "https://www.youtube.com/?v=" + video.optString("key");
+                videoStr[0] = video.optString("name") + " /" + video.optString("size");
+                videoStr[1] = "https://www.youtube.com/watch?v=" + video.optString("key");
                 videoList.add(videoStr);
                 i++;
             }
@@ -90,6 +92,73 @@ public class DetailActivityFragment extends Fragment {
 //            Log.v(LOG_TAG, "videoList: " + videoList.toString());
             return videoList;
         }
+    }
+
+    private void inflateVideoPaths(LayoutInflater inflater, View rootView, ArrayList<String[]> movieVideoPaths) {
+
+        LinearLayout list = (LinearLayout) rootView.findViewById(R.id.movie_video_list);
+        for ( int i=0; i < movieVideoPaths.size(); i++ ) {
+            View vi = inflater.inflate(R.layout.movie_video_link, null);
+            Log.v(LOG_TAG, "videoPaths[" + i + "][0]: " + movieVideoPaths.get(i)[0]);
+            ((TextView)vi.findViewById(R.id.movie_video_link_textview))
+                    .setText(movieVideoPaths.get(i)[0]);
+
+
+            Button playButton = (Button) vi.findViewById(R.id.movie_video_play_button);
+            playButton.setTag(movieVideoPaths.get(i)[1]); // Save/attach youtube uri, which would be used onClick.
+            playButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    String uriString = (String) v.getTag();
+                    Log.v(LOG_TAG, "Media playback: " + uriString);
+                    Intent intent = new Intent(Intent.ACTION_VIEW);
+                    intent.setData(Uri.parse(uriString));
+                    if (intent.resolveActivity(getActivity().getPackageManager()) != null) {
+                        startActivity(intent);
+                    } else {
+                        Toast.makeText(getActivity(), getString(R.string.msg_no_media_app_found), Toast.LENGTH_SHORT).show();
+                    }
+                }
+            });
+
+            list.addView(vi);
+        }
+    }
+
+    private void inflateMovieReviews(LayoutInflater inflater, View rootView, ArrayList<String[]> movieReviews) {
+
+        LinearLayout list = (LinearLayout) rootView.findViewById(R.id.movie_video_list);
+        list = (LinearLayout) rootView.findViewById(R.id.movie_review_list);
+        for ( int i=0; i < movieReviews.size(); i++ ) {
+            View vi = inflater.inflate(R.layout.movie_review_link, null);
+//            Log.v(LOG_TAG, "movieReviews[" + i + "][1]: " + movieReviews.get(i)[1]);
+            String text = movieReviews.get(i)[0]; // + ": " + movieReviews.get(i)[1];
+            ((TextView)vi.findViewById(R.id.movie_review_link_textview))
+                    .setText(text);
+// doesn't work
+//            String text = "<a href='" + movieReviews.get(i)[1] + "'> " + movieReviews.get(i)[0] + " </a>";
+//                    .setText(Html.fromHtml(text));
+
+            Button readButton = (Button) vi.findViewById(R.id.movie_review_read_button);
+            readButton.setTag(movieReviews.get(i)[1]); // Save/attach review uri, which would be used onClick.
+            readButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    String uriString = (String) v.getTag();
+                    Log.v(LOG_TAG, "Review url: " + uriString);
+                    Intent intent = new Intent(Intent.ACTION_VIEW);
+                    intent.setData(Uri.parse(uriString));
+                    if (intent.resolveActivity(getActivity().getPackageManager()) != null) {
+                        startActivity(intent);
+                    } else {
+                        Toast.makeText(getActivity(), getString(R.string.msg_no_media_app_found), Toast.LENGTH_SHORT).show();
+                    }
+                }
+            });
+
+            list.addView(vi);
+        }
+
     }
 
 
@@ -111,7 +180,7 @@ public class DetailActivityFragment extends Fragment {
         String url = movieData.getPosterPath();
         Picasso.with(rootView.getContext())
                 .load(url)
-                .placeholder(R.raw.image_placeholder)
+                .placeholder(R.raw.hourglass_image)
                 .into(imageView);
 
         ((TextView) rootView.findViewById(R.id.movie_release_date))
@@ -129,11 +198,15 @@ public class DetailActivityFragment extends Fragment {
                 .appendPath("3")
                 .appendPath("movie")
                 .appendPath(movieData.getId())
-                .appendPath("reviews")
+                .appendPath("videos")
                 .appendQueryParameter("api_key", MovieData.getApiKey())
                 .build();
         responseStr = GetJson.asString(uri);
-        ArrayList<String[]> movieReviews = getMovieReviews(responseStr); // movieData.setReviews(getMovieReviews(responseStr));
+        ArrayList<String[]> movieVideoPaths = getMovieVideoPaths(responseStr); // movieData.setVideoPaths(getMovieVideoPaths(responseStr));
+        if (movieVideoPaths != null) {
+//        Log.v(LOG_TAG, "movieVideoPaths[0][0]: " + movieVideoPaths.get(0)[0]);
+            inflateVideoPaths(inflater, rootView, movieVideoPaths);
+        }
 
         // http://api.themoviedb.org/3/movie/135397/reviews?api_key=631e0443b035045177f280222421ecd1
         uri = new Uri.Builder()
@@ -142,22 +215,17 @@ public class DetailActivityFragment extends Fragment {
                 .appendPath("3")
                 .appendPath("movie")
                 .appendPath(movieData.getId())
-                .appendPath("videos")
+                .appendPath("reviews")
                 .appendQueryParameter("api_key", MovieData.getApiKey())
                 .build();
         responseStr = GetJson.asString(uri);
-        ArrayList<String[]> movieVideoPaths = getMovieVideoPaths(responseStr); // movieData.setVideoPaths(getMovieVideoPaths(responseStr));
-
-        LinearLayout list = (LinearLayout) rootView.findViewById(R.id.movie_video_list);
-//        Log.v(LOG_TAG, "videoPaths[0][0]: " + movieVideoPaths.get(0)[0]);
-
-        for ( int i=0; i < movieVideoPaths.size(); i++ ) {
-            View vi = inflater.inflate(R.layout.movie_video_link, null);
-            Log.v(LOG_TAG, "videoPaths[" + i + "][0]: " + movieVideoPaths.get(i)[0]);
-            ((TextView)vi.findViewById(R.id.movie_video_link_textview))
-                                        .setText(movieVideoPaths.get(i)[0]);
-            list.addView(vi);
+        ArrayList<String[]> movieReviews = getMovieReviews(responseStr); // movieData.setReviews(getMovieReviews(responseStr));
+        if (movieReviews != null) {
+//        Log.v(LOG_TAG, "movieReviews[0][0]: " + movieReviews.get(0)[0]);
+            inflateMovieReviews(inflater, rootView, movieReviews);
         }
+
         return rootView;
     }
+
 }

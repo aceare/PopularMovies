@@ -5,17 +5,17 @@
                 android:layout_height="match_parent" >
 
     <Button
-        android:id="@+id/movie_video_play_button"
+        android:id="@+id/movie_review_read_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentLeft="true"
-        android:text="@string/movie_video_play_text" />
+        android:text="@string/movie_review_read_text" />
 
     <TextView
-        android:id="@+id/movie_video_link_textview"
+        android:id="@+id/movie_review_link_textview"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_centerVertical="true"
-        android:layout_toRightOf="@+id/movie_video_play_button" />
+        android:layout_toRightOf="@+id/movie_review_read_button" />
 
 </RelativeLayout>

@@ -16,6 +16,7 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.GridView;
 import android.widget.ImageView;
+import android.widget.Toast;
 
 import com.squareup.picasso.Picasso;
 
@@ -178,8 +179,9 @@ public class MainActivityFragment extends Fragment {
                     .appendQueryParameter("sort_by", sortByQueryValue)
                     .build();
             responseStr = GetJson.asString(uri);
-            if (responseStr == null)
+            if (responseStr == null) {
                 return null;
+            }
 
             return getMovieList(responseStr);
 
@@ -193,7 +195,9 @@ public class MainActivityFragment extends Fragment {
         @Override
         protected void onPostExecute(ArrayList<MovieData> movieList) {
             super.onPostExecute(movieList);
-            if (movieList != null) {
+            if (movieList == null) {
+                Toast.makeText(getActivity(), getString(R.string.msg_no_internet_connection), Toast.LENGTH_SHORT).show();
+            }else {
                 mAdapter.clear();
                 for (MovieData movieData : movieList) {
                     mAdapter.add(movieData);
@@ -234,7 +238,7 @@ public class MainActivityFragment extends Fragment {
             // Takes care of downloading & showing it in sync with UI thread, as well as caching images:
             Picasso.with(getContext())
                     .load(url)
-                    .placeholder(R.raw.image_placeholder)
+                    .placeholder(R.raw.hourglass_image)
                     .into(imageView);
             /*
             Picasso.with(mContext) //
